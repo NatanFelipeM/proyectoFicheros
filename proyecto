@@ -1,0 +1,250 @@
+Imports System.IO
+Module Module1
+    Sub Main()
+        Dim usuarios(99) As String
+        Dim series(99) As String
+        Dim votaciones(99) As String
+        Dim elec As Char
+        Dim CodSerie, votoSerie As String
+        Dim cachitos() As String
+        Dim cachitos2() As String
+        Dim h As Integer = 0
+
+        Dim lector As StreamReader = My.Computer.FileSystem.OpenTextFileReader(Directory.GetCurrentDirectory + "\usuarios.txt")
+        While (Not lector.EndOfStream)
+
+            usuarios(h) = lector.ReadLine()
+            h += 1
+        End While
+        lector.Close()
+        h = 0
+        lector = My.Computer.FileSystem.OpenTextFileReader(Directory.GetCurrentDirectory + "\series.txt")
+
+        While (Not lector.EndOfStream)
+            series(h) = lector.ReadLine()
+
+                h += 1
+        End While
+        lector.Close()
+        lector = My.Computer.FileSystem.OpenTextFileReader(Directory.GetCurrentDirectory + "\votaciones.txt")
+
+        h = 0
+        While (Not lector.EndOfStream)
+            votaciones(h) = lector.ReadLine()
+            h += 1
+        End While
+        lector.Close()
+
+        For h = 0 To series.Length - 1 Step 1
+            If series(h) = Nothing Then
+                Exit For
+            End If
+            cachitos = series(h).Split("*"c)
+            CodSerie = cachitos(0)
+            For k As Integer = 0 To votaciones.Length - 1 Step 1
+                cachitos2 = votaciones(k).Split("?"c)
+
+            Next
+        Next
+
+        Console.WriteLine("Escoja una opción:
+a- Ver series.
+b- Mostrar series ordenadas por valoración maior que la que escriva.
+c- Mostrar series de la plataforma que desee.
+d- Crear nuevo usuario.
+e- Añadir una serie.
+f- Buscar serie por código.
+g- Buscar usuario por código.
+h- Valorar una serie.")
+        elec = Convert.ToString(Console.ReadLine())
+        Select Case elec
+            Case "a"c
+                Dim i As Integer = 0
+                Dim serie As String
+                Dim plat As String
+                Dim cachos() As String
+                While (series(i) <> Nothing)
+                    cachos = series(i).Split("*"c)
+                    serie = cachos(1).Split("?"c)(0)
+                    plat = cachos(1).Split("?"c)(1)
+                    Console.WriteLine(serie & " en " & plat)
+
+                    i += 1
+                End While
+            Case "b"c
+                Dim num As Double
+                Console.WriteLine("Introduzca la valoración a partir de la cual se empezarán a mostrar las series.")
+                num = Convert.ToDouble(Console.ReadLine())
+                Dim trozos() As String
+                Dim cachos As String
+                Dim valo As Integer
+                Dim i As Integer = 0
+                While (series(i) <> Nothing)
+                    trozos = series(i).Split("*"c)
+                    valo = trozos(2)
+                    If valo >= num Then
+                        cachos = trozos(1).Split("?"c)(0)
+                        Console.WriteLine(cachos)
+
+                    End If
+                    i += 1
+                End While
+            Case "c"c
+                Dim platDes As String
+                Console.WriteLine("Introduzca la plataforma de las series que desea ver.")
+                platDes = Console.ReadLine()
+                Dim trozos() As String
+                Dim plataforma, seri As String
+                Dim i As Integer
+                While (series(i) <> Nothing)
+                    trozos = series(i).Split("*"c)
+                    plataforma = trozos(1).Split("?"c)(1)
+                    If plataforma = platDes Then
+                        seri = trozos(1).Split("?"c)(0)
+                        Console.WriteLine(seri)
+                    End If
+                    i += 1
+                End While
+            Case "d"c
+                Dim codigo, nombre, contraseña As String
+                Dim edad, mobil As String
+                Dim nuevoUsuario As String
+                Console.WriteLine("Introduzca la información:
+-Código:")
+                codigo = Console.ReadLine()
+                Console.WriteLine("-Nombre:")
+                nombre = Console.ReadLine()
+                Console.WriteLine("-Contraseña:")
+                contraseña = Console.ReadLine()
+                Console.WriteLine("-Edad:")
+                edad = Convert.ToInt32(Console.ReadLine())
+                Console.WriteLine("-Telefono móvil: ")
+                mobil = Convert.ToInt32(Console.ReadLine())
+                nuevoUsuario = codigo + "?"c + nombre + "?"c + contraseña + "?"c + edad + "?"c + mobil
+                Dim escritor As StreamWriter = My.Computer.FileSystem.OpenTextFileWriter(Directory.GetCurrentDirectory + "\usuarios.txt", True)
+                escritor.WriteLine(nuevoUsuario)
+                escritor.Close()
+            Case "e"c
+                Dim codigo, serie, plataf, puntuacion, nueva As String
+                Dim suma, cont As Integer
+                Console.WriteLine("Introduzca la información de la serie:
+-Código:")
+                codigo = Console.ReadLine()
+                Console.WriteLine("-Nombre de la serie:")
+                serie = Console.ReadLine()
+                Console.WriteLine("-Plataforma:")
+                plataf = Console.ReadLine()
+
+                Dim i As Integer = 0
+                For i = 0 To series.Length - 1 Step 1
+                    If series(i) = Nothing Then
+                        Exit For
+                    End If
+                    Dim pedazos() As String
+                    Dim cod As String
+                    pedazos = series(i).Split("?"c)
+                    cod = pedazos(0).Split("*"c)(0)
+                    If cod = codigo Then
+                        Dim valor As String
+                        valor = pedazos(1).Split("*"c)(1)
+                        suma = suma + valor
+                        cont += 1
+                    End If
+
+                Next
+                If suma = 0 Then
+                    puntuacion = 0
+                Else
+                    puntuacion = suma / cont
+                End If
+                nueva = codigo + "*"c + serie + "?"c + plataf + "*"c + puntuacion
+                Dim escritor As StreamWriter = My.Computer.FileSystem.OpenTextFileWriter(Directory.GetCurrentDirectory + "\series.txt", True)
+                escritor.WriteLine(nueva)
+                escritor.Close()
+            Case "f"c
+                Dim codigo, codigoEncontrar As String
+                Dim pedazos() As String
+                Console.WriteLine("Introduzca el código de la serie.")
+                codigo = Console.ReadLine()
+                For i As Integer = 0 To series.Length - 1 Step 1
+                    pedazos = series(i).Split("*"c)
+                    codigoEncontrar = pedazos(0)
+                    If codigo = codigoEncontrar Then
+                        Dim serie As String
+                        serie = pedazos(1).Split("?"c)(0)
+                        Console.WriteLine("La serie es: " & serie)
+                        Exit For
+                    End If
+                Next
+            Case "g"c
+                Dim codigo, codigoUsuario, usuario As String
+                Dim cachos() As String
+                Console.WriteLine("Introduzca el código del usuario.")
+                codigo = Console.ReadLine()
+                For i As Integer = 0 To usuarios.Length - 1 Step 1
+                    cachos = usuarios(i).Split("?"c)
+                    codigoUsuario = cachos(0)
+                    If codigo = codigoUsuario Then
+                        usuario = cachos(1)
+                        Console.WriteLine("El usuario es: " & usuario)
+                        Exit For
+                    End If
+                Next
+            Case "h"c
+                Dim comp As Boolean = False
+                Dim j As Integer = 0
+                Dim codigoUsu, contraUsu, usuario, serieVota, codigoSerie, serie As String
+                Dim votacion As Integer
+                Dim pedazos() As String
+                Dim usuariosVota(99) As String
+                Console.WriteLine("Introduzca su código de usuario.")
+                codigoUsu = Console.ReadLine()
+                Console.WriteLine("Ahora introduzca su contraseña.")
+                contraUsu = Console.ReadLine()
+                For i As Integer = 0 To usuarios.Length - 1 Step 1
+                    If usuarios(i) = Nothing Then
+                        Exit For
+                    End If
+                    pedazos = usuarios(i).Split("?"c)
+                    If contraUsu = pedazos(2) And codigoUsu = pedazos(0) Then
+                        usuario = pedazos(1)
+                        comp = True
+                        Exit For
+                    End If
+                Next
+                If comp = False Then
+                    Console.WriteLine("Ha ocurrido un error. Asegurese que introduce su código y contraseña correctamente.")
+                End If
+                Console.WriteLine("Introduzca la serie a la que quiere votar.")
+                serieVota = Console.ReadLine()
+                Console.WriteLine("Introduzca su valoración.")
+                votacion = Convert.ToString(Console.ReadLine())
+                For i = 0 To series.Length - 1 Step 1
+                    pedazos = series(i).Split("?"c)
+                    serie = pedazos(0).Split("*"c)(1)
+                    If serie = serieVota Then
+                        codigoSerie = pedazos(0).Split("*"c)(0)
+                        Exit For
+                    End If
+                Next
+
+                For i = 0 To votaciones.Length - 1 Step 1
+                    If votaciones(i) = Nothing Then
+                        Exit For
+                    End If
+                    pedazos = votaciones(i).Split("?"c)
+                    If pedazos(0) = codigoUsu And pedazos(1) = codigoSerie Then
+                        Console.WriteLine("Usted ya ha valorado esta serie.")
+                        Exit Select
+                    End If
+                Next
+                Dim nuevaVotacion As String = codigoUsu + "?"c + codigoSerie + "?"c + Convert.ToString(votacion)
+                Dim escritor As StreamWriter = My.Computer.FileSystem.OpenTextFileWriter(Directory.GetCurrentDirectory + "\votaciones.txt", True)
+                escritor.WriteLine(nuevaVotacion)
+                escritor.Close()
+
+        End Select
+        Console.ReadLine()
+    End Sub
+
+End Module
